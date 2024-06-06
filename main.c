@@ -47,7 +47,6 @@
 
 #define BUTTON_PRESSED !(PIND & (1 << PIND1))
 
-
 void init(void) {
     
     //LED
@@ -92,6 +91,8 @@ void init(void) {
 
 ISR(TIMER0_COMPA_vect) {
     
+    LED_3_ON; //Debug
+    
     static volatile uint8_t debounceCounter = 0;
     
     static volatile uint8_t currentStateOfButton = 0;
@@ -110,7 +111,8 @@ ISR(TIMER0_COMPA_vect) {
         debounceCounter = 0; 
         currentStateOfButton = 0; 
         
-    } 
+    }
+    
     
     if(lastStateOfButton == 0 && currentStateOfButton == 1) { //button held stable in pressed state 
         
@@ -118,13 +120,17 @@ ISR(TIMER0_COMPA_vect) {
         
     }
     
-    lastStateOfButton = currentStateOfButton; //update
+    lastStateOfButton = currentStateOfButton; //update 
      
+    LED_6_ON;
+    LED_3_OFF;
+    
 }
+
+static volatile uint8_t currentLED = 0;
 
 void switchLED(void) {
     
-    static volatile uint8_t currentLED = 0;
     currentLED++;
     
     switch(currentLED) { 
