@@ -51,7 +51,7 @@ void init(void) {
     
     //LED
     //Configure Pins 1-5 of Port C as Output
-    DDRC |= (1 << DDC1) | (1 << DDC1) | (1 << DDC2) | (1 << DDC3) | (1 << DDC4) | (1 << DDC5);
+    DDRC |= (1 << DDC1) | (1 << DDC2) | (1 << DDC3) | (1 << DDC4) | (1 << DDC5);
   
     //Configure Pin 4-7 of Port D as Output
     DDRD |= (1 << DDD4);
@@ -67,14 +67,16 @@ void init(void) {
     //Configure Button1 as Input
     DDRD &= ~(1 << DDD1); 
     
-    PORTD |= (1 << PORTD1);    //Enable Pull-Up
+    PORTD |= (1 << PORTD1); //Enable Pull-Up
+    
+    sei(); //Enable Global Interrupt Bit 
     
     PCICR |= (1 << PCIE2); //Enable PC Interrupt on Port D                                                                    
     PCMSK2 |= (1<<PCINT17); //Enable PC Interrupt on Pin 1 on PD
  
     
     //TIMER
-    TIMSK0 |= (1 << OCIE0A); //Enable Timer0 Compare Match A Interrupt //Overflow Bit
+    TIMSK0 |= (1 << OCIE0A); //Enable Timer0 Compare Match A Interrupt 
     
     //Set CTC Mode 
     TCCR0A |= (1 << WGM01); 
@@ -90,9 +92,7 @@ void init(void) {
 }
 
 ISR(TIMER0_COMPA_vect) {
-    
-    LED_3_ON; //Debug
-    
+        
     static volatile uint8_t debounceCounter = 0;
     
     static volatile uint8_t currentStateOfButton = 0;
@@ -100,30 +100,23 @@ ISR(TIMER0_COMPA_vect) {
  
     if(BUTTON_PRESSED) {
         
-        if(debounceCounter == 20) { //Button is pressed for the length of 20ms 
-            currentStateOfButton = 1; 
+        if(debounceCounter < 80) { //Button is pressed for the length of 20ms 
+            debounceCounter++; //funktioniert bzw. hier wird reingegangen und hochgezählt (schon getestet)
         } else {
-            debounceCounter++; 
+            currentStateOfButton = 1; //funktioniert
         }
      
-    } else { //Button is not pressed or pressed for too short a duration
-        
+    } else { //Button is not pressed or pressed for too short a duration //funktioniert
         debounceCounter = 0; 
         currentStateOfButton = 0; 
-        
     }
     
-    
-    if(lastStateOfButton == 0 && currentStateOfButton == 1) { //button held stable in pressed state 
+    if(lastStateOfButton == 0 && currentStateOfButton == 1) { //GEHT HIER NICHT NOCHMAL REIN //button held stable in pressed state 
         
-        switchLED();
-        
+        switchLED(); 
     }
-    
+
     lastStateOfButton = currentStateOfButton; //update 
-     
-    LED_6_ON;
-    LED_3_OFF;
     
 }
 
@@ -132,6 +125,14 @@ static volatile uint8_t currentLED = 0;
 void switchLED(void) {
     
     currentLED++;
+    
+    //Troubleshooting 
+    if (currentLED == 1) {
+        LED_7_ON;
+    }
+    if (currentLED == 2) { //Erreicht nie 2, counter funktioniert jedoch, wird also in ISR nicht mehrmals ausgelöst
+        LED_8_ON;
+    }
     
     switch(currentLED) { 
         
@@ -182,8 +183,6 @@ void switchLED(void) {
 }
 
 void main(void) {
-    
-    sei(); //Enable Global Interrupt Bit 
     
     init();
     
