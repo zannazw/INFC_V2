@@ -1,5 +1,1 @@
-This C program controls a sequence of 10 LEDs on a shield using an ATmega328P microcontroller, creating a running light effect where the LED running light is manually advanced through button presses.
-Each button press should advance the running light by exactly one LED. 
-The program includes functionality to debounce the buttons, preventing unintended LED changes due to button bouncing. Button1 is used for this purpose. 
-Timer/Counter0 is configured to trigger interrupts at a frequency of approximately 1000 times per second.
-Button debouncing is implemented by ensuring that the button is pressed for a minimum of 20ms to ensure it is in a stable state.
+This C program controls a sequence of 10 LEDs on a shield using an ATmega328P microcontroller, advancing the running light through button presses. Each press moves the light by exactly one LED. Button debouncing ensures stable input, preventing unintended changes due to bouncing, with Button1 dedicated to this task. Timer/Counter0 generates 1 kHz interrupts, and debouncing is achieved by requiring a stable button press for at least 20ms.
